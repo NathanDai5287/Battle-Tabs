@@ -1,45 +1,76 @@
-from pprint import pformat
-from typing import List, Tuple
 import random
 import numpy as np
 
+from ship import Ship
 
-class Ship:
-	translations = [np.identity(2), np.array([[0, 1], [-1, 0]]), np.array([[-1, 0], [0, -1]]), np.array([[0, -1], [1, 0]])]
-	def __init__(self, origin: np.ndarray, orientation: int, dimensions: tuple):
-		self.ship_coord = np.array([(row, col) for row in range(dimensions[0]) for col in range(dimensions[1])])
-		self.board_coord = np.matmul(Ship.translations[orientation], self.ship_coord) + origin
 
 class Board:
-	def __init__(self, rocks: List[Tuple], sidelength=7):
-		self.board = [['~'] * sidelength] * sidelength
+	def __init__(self, rocks=[], sidelength=7):
+		"""initializes a BattleTabs Board
+
+		Args:
+				rocks (list, optional): list of rock coordinates. Defaults to [].
+				sidelength (int, optional): board length. Defaults to 7.
+		"""
+
+		self.sidelength = sidelength
+		self.board = {}
 		self.rocks = rocks
-		self.ships = [(1, 1), (2, 2), (1, 3), (1, 4)]
+		self.ship_shapes = [(1, 1), (2, 2), (1, 3), (1, 4)]
+
+		for row in range(sidelength):
+			for col in range(sidelength):
+				self.board[(row, col)] = False
 
 		for rock_coord in self.rocks:
-			self.board[rock_coord[0]][rock_coord[1]] = 'X'
-	
-	def all_possible_placements(self):
-		configurations = []
-		for ship in [Ship(np.array([[row], [col]]), orientation, dimension)]:
-			for row in range(self.sidelength):
-				for col in range(self.sidelength):
-					for orientation in range(4):
-						for dimension in self.ships:
-							
+			self.board[rock_coord] = None
 
-	def __str__(self):
-		return pformat(self.board)
+		self.setup_board()
 
-a = np.array([[1, 2, 3, 4], [5, 6, 7, 8]])
-print(Ship.rotations(a))
+	@staticmethod
+	def array_to_coord(array: np.ndarray) -> tuple:
+		"""converts an array to tuple form
 
-"""
-0 0 0 0 0 0 0
-0 0 0 0 0 0 0
-0 0 0 1 0 0 0
-0 0 1 + 1 0 0
-0 0 0 1 0 0 0
-0 0 0 0 0 0 0
-0 0 0 0 0 0 0
-"""
+		Args:
+			array (np.ndarray): [[x], [y]]
+
+		Returns:
+			tuple: (x, y)
+		"""
+
+		return tuple(array.flatten())
+
+	def setup_board(self) -> None:
+		"""changes self.board values to represent ships
+		"""
+
+		shuffled_ships = self.ship_shapes.copy()
+		random.shuffle(shuffled_ships)
+		for dimension in shuffled_ships:
+			placed = False
+			while (not(placed)):
+				coord = tuple([random.randint(0, self.sidelength) for _ in range(2)])
+				orientation = random.randint(0, 3)
+				ship = Ship(coord, orientation, dimension)
+				placed = self.place(ship)
+
+	def place(self, ship: Ship) -> bool:
+		"""places a ship on the board
+
+		Args:
+			ship (Ship): contains coordinate, orientation, and dimensions
+
+		Returns:
+			bool: whether or not it placed successfully
+		"""
+
+		initial = self.board.copy()
+		coords = ship.get_coords()
+		if (not(ship.in_boundary())):
+			return False
+		for coord in [tuple(arr) for arr in coords.transpose()]:
+			if (self.board[coord]):
+				self.board = initial.copy()
+				return False
+			self.board[coord] = True
+		return True
