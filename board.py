@@ -1,4 +1,6 @@
 import random
+import numpy as np
+from pprint import pformat
 
 from ship import Ship
 
@@ -13,15 +15,32 @@ class Board:
 		"""
 
 		self.sidelength = sidelength
-		self.board = {}
 		self.rocks = rocks
+		self.guesses = 0
 		self.ship_shapes = [(1, 1), (2, 2), (1, 3), (1, 4)]
 
+		self.board = {}
 		for row in range(sidelength):
 			for col in range(sidelength):
 				self.board[(row, col)] = False
 
 		self.setup_board()
+
+		self.nearest = np.empty((sidelength, sidelength), dtype=int)
+		for row in range(sidelength):
+			for col in range(sidelength):
+				self.nearest[row][col] = self.nearest_ship((row, col))
+
+		self.revealed = []
+
+	def __str__(self) -> str:
+		reveal = [list(row) for row in self.nearest.copy()]
+		for row in range(len(reveal)):
+			for col in range(len(reveal)):
+				if ((row, col) not in self.revealed):
+					reveal[row][col] = '~'
+
+		return str(pformat(reveal))
 
 	def setup_board(self) -> None:
 		"""changes self.board values to represent ships
@@ -86,3 +105,9 @@ class Board:
 							return abs(row) + abs(col)
 
 		return False # board is empty
+
+	def guess(self, coord):
+		if (not(coord in self.revealed)):
+			self.revealed.append(coord)
+			
+			print(self)
