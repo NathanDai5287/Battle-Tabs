@@ -3,9 +3,12 @@ import numpy as np
 from pprint import pformat
 
 from ship import Ship
+from array_coord import coord_to_array, array_to_coords
 
 
 class Board:
+	ship_shapes = [(1, 1), (2, 2), (1, 3), (1, 4)]
+
 	def __init__(self, rocks=[], sidelength=7):
 		"""initializes a BattleTabs Board
 
@@ -17,7 +20,7 @@ class Board:
 		self.sidelength = sidelength
 		self.rocks = rocks
 		self.guesses = 0
-		self.ship_shapes = [(1, 1), (2, 2), (1, 3), (1, 4)]
+		self.ships = []
 
 		self.board = {}
 		for row in range(sidelength):
@@ -32,29 +35,50 @@ class Board:
 				self.nearest[row][col] = self.nearest_ship((row, col))
 
 		self.revealed = []
+		self.completely_destroyed = []
 
 	def __str__(self) -> str:
 		reveal = [list(row) for row in self.nearest.copy()]
 		for row in range(len(reveal)):
 			for col in range(len(reveal)):
-				if ((row, col) not in self.revealed):
+				coord = (row, col)
+				if (coord not in self.revealed): # if ship is revealed
 					reveal[row][col] = '~'
 
-		return str(pformat(reveal))
+				if (coord in self.fully_destroyed()): # if the ship is fully destroyed
+					ship = None
+
+					for ship in self.ships: # find which ship this is
+						if (coord in array_to_coords(ship.get_coords())):
+							break # sets ship
+
+					if (ship.shape == (1, 4) or ship.shape == (1, 3)): # if the ship is a 1 x 4 or 1 x 3
+						if (ship.orientation % 2 == 1):
+							reveal[row][col] = '|'
+						else:
+							reveal[row][col] = '-'
+						
+					else: # use *
+						reveal[row][col] = '*'
+
+		return pformat(reveal)
 
 	def setup_board(self) -> None:
 		"""changes self.board values to represent ships
 		"""
 
-		shuffled_ships = self.ship_shapes.copy()
+		shuffled_ships = Board.ship_shapes.copy()
 		random.shuffle(shuffled_ships)
+
 		for dimension in shuffled_ships:
+			ship = None
 			placed = False
 			while (not(placed)):
 				coord = tuple([random.randint(0, self.sidelength) for _ in range(2)])
 				orientation = random.randint(0, 3)
 				ship = Ship(coord, orientation, dimension)
 				placed = self.place(ship)
+			self.ships.append(ship)
 
 	def place(self, ship: Ship) -> bool:
 		"""places a ship on the board
@@ -106,8 +130,19 @@ class Board:
 
 		return False # board is empty
 
+	def fully_destroyed(self) -> list:
+		destroy_reveal = []
+		for ship in self.ships:
+			if (set(coords := array_to_coords(ship.get_coords())) <= set(self.revealed)):
+				[destroy_reveal.append(coord) for coord in coords]
+		return destroy_reveal
+
 	def guess(self, coord):
 		if (not(coord in self.revealed)):
 			self.revealed.append(coord)
-			
+			self.guesses += 1
+
 			print(self)
+
+			return True
+		return False
