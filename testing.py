@@ -4,6 +4,7 @@ import numpy as np
 from board import Board
 from ship import Ship
 
+
 class Test(unittest.TestCase):
     def test_setup_board(self):
         """checks if the number of ships is correct
@@ -38,12 +39,12 @@ class Test(unittest.TestCase):
         board = Board()
         board.board = np.array(
             [[False, False, False, False, False, False, False],
-            [False, False, False, False, False, False, False],
-            [False, False, False, False, False, True, False],
-            [False, False, False, False, False, False, False],
-            [False, False, False, False, False, False, False],
-            [False, False, False, False, False, False, False],
-            [False, False, False, False, False, False, False]]
+             [False, False, False, False, False, False, False],
+             [False, False, False, False, False, True, False],
+             [False, False, False, False, False, False, False],
+             [False, False, False, False, False, False, False],
+             [False, False, False, False, False, False, False],
+             [False, False, False, False, False, False, False]]
         )
 
         nearest = board.nearest_ship((3, 3))
@@ -51,12 +52,12 @@ class Test(unittest.TestCase):
 
         board.board = np.array(
             [[False, False, False, False, False, False, False],
-            [False, False, False, False, False, False, False],
-            [False, False, False, False, False, False, False],
-            [False, False, False, False, False, False, False],
-            [False, False, False, False, False, False, False],
-            [False, False, False, False, False, False, False],
-            [False, False, False, False, False, False, True]]
+             [False, False, False, False, False, False, False],
+             [False, False, False, False, False, False, False],
+             [False, False, False, False, False, False, False],
+             [False, False, False, False, False, False, False],
+             [False, False, False, False, False, False, False],
+             [False, False, False, False, False, False, True]]
         )
 
         nearest = board.nearest_ship((6, 6))
@@ -64,12 +65,12 @@ class Test(unittest.TestCase):
 
         board.board = np.array(
             [[False, False, False, False, False, False, False],
-            [False, False, False, False, False, False, False],
-            [False, False, False, False, False, False, False],
-            [False, False, False, False, False, False, False],
-            [False, False, False, False, True, True, False],
-            [False, False, False, False, True, False, False],
-            [False, False, False, False, False, False, False]]
+             [False, False, False, False, False, False, False],
+             [False, False, False, False, False, False, False],
+             [False, False, False, False, False, False, False],
+             [False, False, False, False, True, True, False],
+             [False, False, False, False, True, False, False],
+             [False, False, False, False, False, False, False]]
         )
 
         nearest = board.nearest_ship((6, 6))
@@ -77,12 +78,12 @@ class Test(unittest.TestCase):
 
         board.board = np.array(
             [[False, False, False, False, False, False, False],
-            [False, False, False, False, False, False, False],
-            [False, False, False, False, False, False, False],
-            [False, False, False, False, False, False, False],
-            [False, False, False, False, True, False, False],
-            [False, False, False, False, False, False, False],
-            [False, False, False, False, False, False, False]]
+             [False, False, False, False, False, False, False],
+             [False, False, False, False, False, False, False],
+             [False, False, False, False, False, False, False],
+             [False, False, False, False, True, False, False],
+             [False, False, False, False, False, False, False],
+             [False, False, False, False, False, False, False]]
         )
 
         nearest = board.nearest_ship((6, 6))
@@ -90,15 +91,40 @@ class Test(unittest.TestCase):
 
         board.board = np.array(
             [[False, False, False, False, False, False, False],
-            [False, False, False, False, False, False, False],
-            [False, False, False, False, False, False, False],
-            [False, False, False, False, False, False, False],
-            [False, False, False, False, True, False, False],
-            [False, False, False, False, False, False, False],
-            [False, False, False, False, False, False, False]]
+             [False, False, False, False, False, False, False],
+             [False, False, False, False, False, False, False],
+             [False, False, False, False, False, False, False],
+             [False, False, False, False, True, False, False],
+             [False, False, False, False, False, False, False],
+             [False, False, False, False, False, False, False]]
         )
 
         nearest = board.nearest_ship((3, 1))
         self.assertEqual(nearest, 4)
 
-unittest.main()
+    def test_game_over(self):
+        """tests the game_over() methos
+        """
+
+        board = Board()
+        for row in range(board.sidelength):
+            for col in range(board.sidelength):
+                board.guess((row, col))
+
+        self.assertTrue(board.game_over())
+
+        board = Board()
+        for row in range(board.sidelength - 4):
+            for col in range(board.sidelength - 4):
+                board.guess((row, col))
+
+        self.assertFalse(board.game_over())
+
+        board = Board()
+
+        for coord in [(row, col) for row in range(board.sidelength) for col in range(board.sidelength) if board.nearest[row][col] == 0]:
+            board.guess(coord)
+
+        self.assertTrue(board.game_over())
+
+unittest.main() # -b to suppress print
