@@ -14,6 +14,9 @@ class Ship:
                 dimensions (tuple): dimensions of ship
         """
 
+        self.shape = dimensions
+        self.orientation = orientation
+
         self.ship_coord = np.array([(row, col) for row in range(dimensions[0]) for col in range(dimensions[1])])
         self.board_coord = np.matmul(Ship.translations[orientation], self.ship_coord.transpose()) + np.array([[origin[0]], [origin[1]]]).astype(int)
 
