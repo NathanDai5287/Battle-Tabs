@@ -1,4 +1,5 @@
 from board import Board
+from array_coord import array_to_coords
 
 import numpy as np
 from tkinter import *
@@ -38,15 +39,28 @@ class BattleTabs(Frame):
 		self.buttons = np.empty((sidelength, sidelength), dtype=Square)
 		for row in range(sidelength):
 			for col in range(sidelength):
-				button = Square(self, row, col, width=2, height=1)
+				button = Square(self, row, col, width=4, height=2)
 				button.config(command=lambda button=button: self.guess(button))
 				self.buttons[row][col] = button
 
 				self.buttons[row][col].grid(row=row + 1, column=col, rowspan=1, columnspan=1)
 
 	def guess(self, button):
-		valid = self.board.guess(coord := button.get_coord())
-		button['text'] = self.board.nearest_ship(coord)
+		self.board.guess(coord := button.get_coord())
+		button.config(
+			text=self.board.nearest_ship(coord), 
+			relief=SUNKEN,
+			bg='grey'
+			)
+
+		if (type(self.board.output()[coord[0]][coord[1]]) != np.int32):
+			for ship in self.board.ships:
+				# breakpoint()
+				if (coord in (coords := [tuple(map(int, i)) for i in array_to_coords(ship.get_coords())])):
+					# [self.buttons[c[0]][c[1]].config(bg='red') for c in coords]
+					for c in coords:
+						self.buttons[c[0]][c[1]].config(bg='red')
+					break
 
 root = Tk()
 root.title('BattleTabs')

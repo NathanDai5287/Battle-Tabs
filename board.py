@@ -38,6 +38,9 @@ class Board:
 		self.completely_destroyed = []
 
 	def __str__(self) -> str:
+		return pformat(self.output())
+
+	def output(self) -> list:
 		reveal = [list(row) for row in self.nearest.copy()]
 		for row in range(len(reveal)):
 			for col in range(len(reveal)):
@@ -60,8 +63,7 @@ class Board:
 						
 					else: # use *
 						reveal[row][col] = '*'
-
-		return pformat(reveal)
+		return reveal
 
 	def setup_board(self) -> None:
 		"""changes self.board values to represent ships
