@@ -142,7 +142,7 @@ class Board:
 			return True
 		return False
 
-	def guess(self, coord):
+	def guess(self, coord) -> bool:
 		if (not(coord in self.revealed)):
 			self.revealed.append(coord)
 			self.guesses += 1
