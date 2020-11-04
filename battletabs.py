@@ -23,11 +23,6 @@ class Square(Button):
 	def get_coord(self):
 		return (self.row, self.col)
 
-	def get_clicked(self):
-		return self.clicked
-
-	def click(self):
-		self.clicked = True
 
 class BattleTabs(Frame):
 	def __init__(self, master: Tk, rocks=[], sidelength=7):
@@ -40,12 +35,20 @@ class BattleTabs(Frame):
 		self.sidelength = sidelength
 
 		self.destroyed = 0
-		self.moves = 0
 
 		self.board = Board(rocks)
-		self.setup_board()
+		self.setup_buttons()
+
+	# moves
+		self.moves = 0
+		self.move_counter = Label(self, text=str(self.moves), font=('Helvetica', 12))
+		self.move_counter.grid(row=sidelength + 1, column=0, columnspan=4)
+
+	# new game
+		self.restart_button = Button(self, text='New Game', command=self.new_game)
+		self.restart_button.grid(row=sidelength + 1, column=sidelength * 2 // 3, columnspan=4)
 	
-	def setup_board(self):
+	def setup_buttons(self):
 		self.buttons = np.empty((self.sidelength, self.sidelength), dtype=Square)
 		for row in range(self.sidelength):
 			for col in range(self.sidelength):
@@ -58,6 +61,8 @@ class BattleTabs(Frame):
 	def guess(self, button):
 		if (button['relief'] == SUNKEN): # if it has already been guessed
 			return
+		
+		self.move()
 
 		self.board.guess(coord := button.get_coord())
 		button.config(
@@ -73,22 +78,24 @@ class BattleTabs(Frame):
 				if (coord in (coords := [tuple(map(int, i)) for i in array_to_coords(ship.get_coords())])):
 					[self.buttons[c[0]][c[1]].config(bg='red') for c in coords]
 					break
-			self.new_game()
+			if (self.destroyed == len(Board.ship_shapes)):
+				again = messagebox.askyesno('You Win!', 'Congratulations! You Win!\nWould you like to play agin')
+				self.new_game() if again else self.root.destroy()
 
 	def new_game(self):
-		if (self.destroyed == len(Board.ship_shapes)):
-			again = messagebox.askyesno('You Win!', 'Congratulations! You Win!\nWould you like to play agin')
-			if (again):
-				[button.destroy() for row in self.buttons for button in row]
+		[button.destroy() for row in self.buttons for button in row]
 
-				self.destroyed = 0
-				self.moves = 0
-				
-				self.board = Board(self.rocks)
-				self.setup_board()
-			else:
-				self.root.destroy()
-			
+		self.destroyed = 0
+		self.moves = 0
+		self.move_counter.config(text=str(self.moves))
+		
+		self.board = Board(self.rocks)
+		self.setup_buttons()
+	
+	def move(self):
+		self.moves += 1
+		self.move_counter.config(text=str(self.moves))
+
 root = Tk()
 root.title('BattleTabs')
 game = BattleTabs(root)
