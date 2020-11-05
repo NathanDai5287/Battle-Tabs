@@ -153,3 +153,8 @@ class Board:
 
 			return True
 		return False
+
+	@staticmethod
+	def radius(distance, coord):
+		x, y = coord
+		return [(r, c) for r, c in set([(x + i, y + distance - abs(i)) for i in range(-distance, distance + 1)] + [(x + i, y - distance + abs(i)) for i in range(-distance, distance + 1)]) if r >= 0 and r < 7 and c >= 0 and c < 7]

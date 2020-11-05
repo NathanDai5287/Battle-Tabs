@@ -14,14 +14,32 @@ from tkinter import messagebox
 # FEATURE: reveal all button
 
 class Square(Button):
-	def __init__(self, master, row, col, clicked=False, **kwargs):
+	def __init__(self, master, row, col, **kwargs):
 		super().__init__(master=master, **kwargs)
 		self.row = row
 		self.col = col
-		self.clicked = clicked
+		self.clicked = False
+
+		self.hit = False
+		self.destroyed = False
 
 	def get_coord(self):
 		return (self.row, self.col)
+	
+	def click(self):
+		self.clicked = True
+	
+	def destroy(self):
+		self.destroyed = True
+	
+	def attack(self):
+		self.hit = True
+	
+	def get_clicked(self):
+		return self.clicked
+	
+	def get_destroyed(self):
+		return self.destroyed
 
 
 class BattleTabs(Frame):
@@ -53,16 +71,21 @@ class BattleTabs(Frame):
 		for row in range(self.sidelength):
 			for col in range(self.sidelength):
 				button = Square(self, row, col, width=4, height=2)
+
 				button.config(command=lambda button=button: self.guess(button))
+				button.bind('<Enter>', lambda event, button=button: self.hover(True, button, event))
+				button.bind('<Leave>', lambda event, button=button: self.hover(False, button, event))
+				
 				self.buttons[row][col] = button
 
 				self.buttons[row][col].grid(row=row + 1, column=col, rowspan=1, columnspan=1)
 
 	def guess(self, button):
-		if (button['relief'] == SUNKEN): # if it has already been guessed
+		if (button.get_clicked()): # if it has already been guessed
 			return
 		
 		self.move()
+		button.click()
 
 		self.board.guess(coord := button.get_coord())
 		button.config(
@@ -71,12 +94,13 @@ class BattleTabs(Frame):
 			bg='grey'
 			)
 
-		if (type(self.board.output()[coord[0]][coord[1]]) != np.int32):
+		if (type(self.board.output()[coord[0]][coord[1]]) != np.int32): # if a ship was hit
+			button.attack()
 			self.destroyed += 1
 			for ship in self.board.ships:
-				# breakpoint()
 				if (coord in (coords := [tuple(map(int, i)) for i in array_to_coords(ship.get_coords())])):
 					[self.buttons[c[0]][c[1]].config(bg='red') for c in coords]
+					[self.buttons[c[0]][c[1]].destroy() for c in coords]
 					break
 			if (self.destroyed == len(Board.ship_shapes)):
 				again = messagebox.askyesno('You Win!', 'Congratulations! You Win!\nWould you like to play agin')
@@ -91,10 +115,27 @@ class BattleTabs(Frame):
 		
 		self.board = Board(self.rocks)
 		self.setup_buttons()
-	
+
 	def move(self):
 		self.moves += 1
 		self.move_counter.config(text=str(self.moves))
+	
+	def hover(self, hovering, button, _):
+		if (not(button.get_clicked())):
+			return
+
+		coord = button.get_coord()
+		color = 'light grey' if hovering else 'SystemButtonFace'
+		secondary = color
+		unknown = Board.radius(self.board.nearest_ship(coord), coord)
+		for coord in unknown:
+			secondary = color
+			if (self.buttons[coord[0]][coord[1]].get_clicked()): # if the button has already been clicked
+				secondary = 'grey' # otherwise grey
+				if (self.buttons[coord[0]][coord[1]].get_destroyed()): # if the coord is one of the destroyed ships
+					secondary = 'red'
+
+			self.buttons[coord[0]][coord[1]].config(bg=secondary)
 
 root = Tk()
 root.title('BattleTabs')
