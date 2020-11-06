@@ -7,9 +7,12 @@ from array_coord import coord_to_array, array_to_coords
 
 
 class Board:
+
+	"""a Board that stores game information"""
+
 	ship_shapes = [(1, 1), (2, 2), (1, 3), (1, 4)]
 
-	def __init__(self, rocks=[], sidelength=7):
+	def __init__(self, rocks=[], sidelength=7) -> None:
 		"""initializes a BattleTabs Board
 
 		Args:
@@ -38,6 +41,21 @@ class Board:
 		self.completely_destroyed = []
 
 	def __str__(self) -> str:
+		"""outputs board status
+
+		Returns:
+			str: for debugging
+		"""
+
+		return pformat(self.output())
+
+	def output(self) -> list:
+		"""what the player sees
+
+		Returns:
+			list: arranged in a two-dimensional list
+		"""
+
 		reveal = [list(row) for row in self.nearest.copy()]
 		for row in range(len(reveal)):
 			for col in range(len(reveal)):
@@ -60,8 +78,7 @@ class Board:
 						
 					else: # use *
 						reveal[row][col] = '*'
-
-		return pformat(reveal)
+		return reveal
 
 	def setup_board(self) -> None:
 		"""changes self.board values to represent ships
@@ -131,6 +148,12 @@ class Board:
 		return False # board is empty
 
 	def fully_destroyed(self) -> list:
+		"""finds the coordinates that are part of a fully destroyed ship
+
+		Returns:
+			list[tuple]: list of tuple coordinates
+		"""
+
 		destroy_reveal = []
 		for ship in self.ships:
 			if (set(coords := array_to_coords(ship.get_coords())) <= set(self.revealed)):
@@ -138,16 +161,45 @@ class Board:
 		return destroy_reveal
 
 	def game_over(self) -> bool:
+		"""checks if all the ships have been hit
+
+		Returns:
+			bool: whether or not the game is over
+		"""
+
 		if (len(self.fully_destroyed()) == 12):
 			return True
 		return False
 
-	def guess(self, coord):
+	def guess(self, coord: tuple) -> bool:
+		"""simulates player guess
+
+		Args:
+			coord (tuple): coordinate that player guessed
+
+		Returns:
+			bool: whether or not it was a valid move
+		"""
+
 		if (not(coord in self.revealed)):
 			self.revealed.append(coord)
 			self.guesses += 1
 
-			print(self)
+			print(self, end='\n\n')
 
 			return True
 		return False
+
+	def radius(self, distance: int, coord: tuple) -> list:
+		"""finds all the points that are distance r from a position (x, y)
+
+		Args:
+			distance (int): distance to search
+			coord (tuple): center of circle
+
+		Returns:
+			list[tuple]: list of coordinates
+		"""
+
+		x, y = coord
+		return [(r, c) for r, c in set([(x + i, y + distance - abs(i)) for i in range(-distance, distance + 1)] + [(x + i, y - distance + abs(i)) for i in range(-distance, distance + 1)]) if r >= 0 and r < self.sidelength and c >= 0 and c < self.sidelength]
