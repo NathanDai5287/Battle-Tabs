@@ -10,7 +10,7 @@ class Test(unittest.TestCase):
         """checks if the number of ships is correct
         """
 
-        for test in range(10):
+        for _ in range(10):
             board = Board()
 
             temp_x, temp_y = map(max, zip(*board.board))
@@ -126,5 +126,24 @@ class Test(unittest.TestCase):
             board.guess(coord)
 
         self.assertTrue(board.game_over())
+    
+    def test_radius(self):
+        coords = [(4, 4), (2, 4), (3, 1), (4, 2), (2, 2), (5, 3), (1, 3), (3, 5)]
+        self.assertEqual(Board.radius(2, (3, 3)), coords)
+
+        coords = [(1, 2), (2, 1), (0, 3), (3, 0)]
+        self.assertEqual(Board.radius(3, (0, 0)), coords)
+
+        coords = [(4, 0), (3, 1), (0, 2), (2, 2), (1, 3)]
+        self.assertEqual(Board.radius(3, (1, 0)), coords)
+
+        coords = [(5, 6), (6, 5)]
+        self.assertEqual(Board.radius(1, (6, 6)), coords)
+
+        coords = [(5, 1), (4, 2), (3, 3), (2, 4), (1, 5), (0, 6), (6, 0)]
+        self.assertEqual(Board.radius(6, (0, 0)), coords)
+
+        coords = [(0, 0)]
+        self.assertEqual(Board.radius(12, (6, 6)), coords)
 
 unittest.main() # -b to suppress print

@@ -171,7 +171,7 @@ class Board:
 			return True
 		return False
 
-	def guess(self, coord: tuple) -> bool:
+	def guess(self, coord: tuple) -> int:
 		"""simulates player guess
 
 		Args:
@@ -187,8 +187,7 @@ class Board:
 
 			print(self, end='\n\n')
 
-			return True
-		return False
+			return self.nearest[coord[0]][coord[1]]
 
 	def radius(self, distance: int, coord: tuple) -> list:
 		"""finds all the points that are distance r from a position (x, y)
