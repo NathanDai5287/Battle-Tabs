@@ -185,7 +185,7 @@ class Board:
 			self.revealed.append(coord)
 			self.guesses += 1
 
-			print(self, end='\n')
+			print(self, end='\n\n')
 
 			return True
 		return False
