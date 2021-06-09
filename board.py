@@ -75,7 +75,7 @@ class Board:
 							reveal[row][col] = '|'
 						else:
 							reveal[row][col] = '-'
-						
+
 					else: # use *
 						reveal[row][col] = '*'
 		return reveal
@@ -161,6 +161,11 @@ class Board:
 		return destroy_reveal
 
 	def game_over(self) -> bool:
+		if (len(self.fully_destroyed()) == 12):
+			return True
+		return False
+
+	def game_over(self) -> bool:
 		"""checks if all the ships have been hit
 
 		Returns:
@@ -171,7 +176,7 @@ class Board:
 			return True
 		return False
 
-	def guess(self, coord: tuple) -> bool:
+	def guess(self, coord: tuple, output: bool) -> int:
 		"""simulates player guess
 
 		Args:
@@ -185,10 +190,10 @@ class Board:
 			self.revealed.append(coord)
 			self.guesses += 1
 
-			print(self, end='\n\n')
+			if (output):
+				print(self, end='\n\n')
 
-			return True
-		return False
+			return self.nearest[coord[0]][coord[1]]
 
 	def radius(self, distance: int, coord: tuple) -> list:
 		"""finds all the points that are distance r from a position (x, y)

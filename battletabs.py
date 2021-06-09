@@ -131,8 +131,9 @@ class BattleTabs(Frame):
 
 		self.move()
 		button.click()
+		self.hover(True, button, None)
 
-		self.board.guess(coord := button.get_coord())
+		self.board.guess(coord := button.get_coord(), False)
 		button.config(
 			text=self.board.nearest_ship(coord),
 			relief=SUNKEN,
@@ -198,5 +199,6 @@ class BattleTabs(Frame):
 
 root = Tk()
 root.title('BattleTabs')
+root.iconbitmap('fav.ico')
 game = BattleTabs(root, sidelength=7)
 game.mainloop()
