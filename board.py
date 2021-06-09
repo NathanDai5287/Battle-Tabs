@@ -75,7 +75,7 @@ class Board:
 							reveal[row][col] = '|'
 						else:
 							reveal[row][col] = '-'
-						
+
 					else: # use *
 						reveal[row][col] = '*'
 		return reveal
@@ -190,7 +190,8 @@ class Board:
 			self.revealed.append(coord)
 			self.guesses += 1
 
-			print(self, end='\n\n')
+			if (output):
+				print(self, end='\n\n')
 
 			return self.nearest[coord[0]][coord[1]]
 
