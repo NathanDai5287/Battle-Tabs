@@ -8,7 +8,7 @@ import pickle
 generation = 0
 
 def fitness(genomes, config):
-	
+
 	global generation
 
 	generation += 1
@@ -26,13 +26,13 @@ def fitness(genomes, config):
 				players.append(pickle.load(f))
 		except EOFError:
 			players.append(Board())
-				
-		
+
+
 		ge.append(genome)
 
 	for i, player in enumerate(players):
 		output = 0
-		# outputs = list(map(int, nets[i].activate((output))))
+		outputs = list(map(int, nets[i].activate((output))))
 
 		# make a move
 		if (any(0 <= i <= 6 for i in outputs)):
@@ -45,7 +45,7 @@ def fitness(genomes, config):
 				score = player.guess((random.randint(0, 6), outputs[1]))
 		else:
 			score = player.guess((random.randint(0, 6), random.randint(0, 6)))
-		
+
 		with open('boards.pkl', 'r+b') as f:
 			pickle.dump(player, f)
 

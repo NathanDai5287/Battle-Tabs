@@ -133,7 +133,7 @@ class BattleTabs(Frame):
 		button.click()
 		self.hover(True, button, None)
 
-		self.board.guess(coord := button.get_coord())
+		self.board.guess(coord := button.get_coord(), False)
 		button.config(
 			text=self.board.nearest_ship(coord),
 			relief=SUNKEN,

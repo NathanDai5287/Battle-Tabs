@@ -176,7 +176,7 @@ class Board:
 			return True
 		return False
 
-	def guess(self, coord: tuple) -> int:
+	def guess(self, coord: tuple, output: bool) -> int:
 		"""simulates player guess
 
 		Args:
