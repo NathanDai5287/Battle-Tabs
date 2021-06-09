@@ -159,7 +159,7 @@ class Board:
 			if (set(coords := array_to_coords(ship.get_coords())) <= set(self.revealed)):
 				[destroy_reveal.append(coord) for coord in coords]
 		return destroy_reveal
-	
+
 	def game_over(self) -> bool:
 		if (len(self.fully_destroyed()) == 12):
 			return True
