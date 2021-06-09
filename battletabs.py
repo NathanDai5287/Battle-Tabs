@@ -199,5 +199,6 @@ class BattleTabs(Frame):
 
 root = Tk()
 root.title('BattleTabs')
+root.iconbitmap('fav.ico')
 game = BattleTabs(root, sidelength=7)
 game.mainloop()
